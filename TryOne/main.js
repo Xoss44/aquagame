@@ -1,17 +1,60 @@
 // JavaScript Document
 var canvas = document.getElementById("mainGame");
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("2d");  //ctx.fillRect(0, 0, canvas.width, canvas.height);
+var boardF = new BoardF();
+var swimmingBoyF = new SwimmingBoyF();
+var shark = new Shark();
+var crock = new Crock();
+var beachBall = new Beachball();
+var rubberDock = new Rubberdoc();
 
-ctx.fillRect(0, 0, canvas.width, canvas.height);
+var shoot = new Shoot(swimmingBoyF.x,swimmingBoyF.y);
+var planets =[shark, crock];
+var bullets = [];
+
+//var beachBall = new Beachball();
+//var rubberDock = new Rubberdoc();
+
 
 //classes
-function Board(img) {
+function BoardF() {
 	this.x = 0;
 	this.y = 0;
 	this.width = canvas.width;
 	this.height = canvas.height;
 	this.img = new Image();
-	this.img.src = img;
+	this.img.src = "assets/piscinalateral.png";
+	this.score = 0;
+	//this.music = new Audio();
+	//this.music.src = ""
+	
+	//llama al metodo draw cuando la imagen ya cargó
+	this.img.onload = function() {
+		this.draw();
+	}.bind(this);
+	
+	this.move = function() {
+		this.x--;
+		if(this.x < -canvas.width) {
+			this.x = 0;
+		}
+	};
+	
+	//metodo principal
+	this.draw = function() {
+		this.move();
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		ctx.drawImage(this.img, this.x + canvas.width, this.y, this.width, this.height);
+	};
+}//end of boardf
+
+function Board() {
+	this.x = 0;
+	this.y = 0;
+	this.width = canvas.width;
+	this.height = canvas.height;
+	this.img = new Image();
+	this.img.src = "assets/piscinasf.jpg";
 	this.score = 0;
 	//this.music = new Audio();
 	//this.music.src = ""
@@ -36,12 +79,39 @@ function Board(img) {
 	};
 }//end of board
 
-//SwimmingBoy
+//SwimmingBoyF
+function SwimmingBoyF() {
+	this.x = 50;
+	this.y = Math.floor(Math.random() * 380)+120;
+	this.width = 150;
+	this.height = 70;
+	this.img = new Image();
+	this.img.src = "assets/NADADORROJO.png";
+
+
+	this.img.onload = function() {
+		this.draw();
+	}.bind(this);
+
+	this.draw = function() {
+		this.y += 1;
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		//esto es una validacion
+		if(this.y < 0 || this.y > canvas.height - this.height) {
+			gameOver();
+					}
+	};
+	this.move =function() {
+		this.y -= 30;
+	};
+}
+
+
 function SwimmingBoy() {
 	this.x = 50;
-	this.y = 105;
+	this.y = Math.floor(Math.random() * 380)+120;
 	this.width = 150;
-	this.height = 120;
+	this.height = 70;
 	this.img = new Image();
 	this.img.src = "assets/NADADORAZUL.png";
 
@@ -71,14 +141,187 @@ function SwimmingBoy() {
 	};	
 }
 
+function Shoot(x,y){
+  this.x = x; 
+  this.y = y;
+  this.width = 20;
+  this.height = 20;
+  this.move = false;
+  this.img = new Image();
+  this.img.src = "assets/burbujas.png";
+    this.img.onload = function(){
+      this.draw();
+    }.bind(this);
+  
+    this.draw = function(){
+      if(this.move) this.x += 5;
+      ctx.drawImage(this.img,this.x + 55,this.y + 5,this.width,this.height);
+    };
+    this.moveUp = function(){
+       this.y -= 20; 
+    };
+    this.moveDown = function(){
+      this.y += 20;
+    };
+    this.moveLeft = function(){
+      this.x -= 10;
+    };
+    this.moveRight = function(){
+      this.x += 10;
+    };
+  this.isTouching = function(planet){
+    return(this.x < planet.x + planet.width) && (this.x + this.width > planet.x) && (this.y < planet.y + planet.height) && (this.y + this.height > planet.y);
+  };
+}
+
+function createShoots(){
+  bullets.push(new Shoot(swimmingBoyF.x,swimmingBoyF.y));  
+  }
+
+
+//objects
+function Shark() {
+	this.x = canvas.width + 80; //+ widthRandom
+	this.y = 150;
+	this.width = 70;
+	this.height = 59;
+	//this.num
+	this.img = new Image();
+		this.img.src = "assets/tiburon.png";
+		this.img.onload = function() {
+			this.draw();
+		}.bind(this);
+	this.move = function() {
+		this.x -= 3;
+	};
+	this.draw = function() {
+		this.move();
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		//pinta los numeros
+		if(this.x < 0) {
+			var randomX = Math.floor(Math.random() * 800);
+			var randomY = Math.floor(Math.random() * 380)+120;
+			this.x = canvas.width + randomX;
+			this.y = randomY;
+		}
+	this.redraw = function(){
+		var randomX = Math.floor(Math.random() * 800);
+		var randomY = Math.floor(Math.random() * 380)+120;
+		this.x = canvas.width + randomX;
+		this.y = randomY;
+	};
+	};
+}
+
+function Crock() {
+	this.x = canvas.width; //+ widthRandom
+	this.y = 300;
+	this.width = 75;
+	this.height = 55;
+	//this.num
+	this.img = new Image();
+		this.img.src = "assets/cocodrilo.png";
+		this.img.onload = function() {
+			this.draw();
+		}.bind(this);
+	this.move = function() {
+		this.x -= 2.5;
+	};
+	this.draw = function() {
+		this.move();
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		//pinta los numeros
+		if(this.x < 0) {
+			var randomX = Math.floor(Math.random() * 800);
+			var randomY = Math.floor(Math.random() * 380)+120;
+			this.x = canvas.width + randomX;
+			this.y = randomY;
+		}
+	this.redraw = function(){
+		var randomX = Math.floor(Math.random() * 800);
+		var randomY = Math.floor(Math.random() * 380)+120;
+		this.x = canvas.width + randomX;
+		this.y = randomY;
+	};
+	};
+}
+
+function Beachball() {
+	this.x = canvas.width + 40; //+ widthRandom
+	this.y = Math.floor(Math.random() * 380)+120;
+	this.width = 59;
+	this.height = 59;
+	//this.num
+	this.img = new Image();
+		this.img.src = "assets/pelota.png";
+		this.img.onload = function() {
+			this.draw();
+		}.bind(this);
+	this.move = function() {
+		this.x -= 1.5;
+	};
+	this.draw = function() {
+		this.move();
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		//pinta los numeros
+		if(this.x < 0) {
+			var randomX = Math.floor(Math.random() * 800);
+			var randomY = Math.floor(Math.random() * 380)+120;
+			this.x = canvas.width + randomX;
+			this.y = randomY;
+		}
+	this.redraw = function(){
+		var randomX = Math.floor(Math.random() * 800);
+		var randomY = Math.floor(Math.random() * 380)+120;
+		this.x = canvas.width + randomX;
+		this.y = randomY;
+	};
+	};
+}
+
+function Rubberdoc() {
+	this.x = canvas.width + Math.floor(Math.random() * 120);; //+ widthRandom
+	this.y = Math.floor(Math.random() * 380)+120;
+	this.width = 59;
+	this.height = 59;
+	//this.num
+	this.img = new Image();
+		this.img.src = "assets/patohule.png";
+		this.img.onload = function() {
+			this.draw();
+		}.bind(this);
+	this.move = function() {
+		this.x -= 2;
+	};
+	this.draw = function() {
+		this.move();
+		ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
+		//pinta los numeros
+		if(this.x < 0) {
+			var randomX = Math.floor(Math.random() * 800);
+			var randomY = Math.floor(Math.random() * 380)+120;
+			this.x = canvas.width + randomX;
+			this.y = randomY;
+		}
+	this.redraw = function(){
+		var randomX = Math.floor(Math.random() * 800);
+		var randomY = Math.floor(Math.random() * 380)+120;
+		this.x = canvas.width + randomX;
+		this.y = randomY;
+	};
+	};
+}
+
 
 //declaraciones
-var board = new Board("assets/piscinalateral.png");
-var boardF = new Board("assets/piscinasf.jpg");
+var board = new Board();
 var swimmingBoy = new SwimmingBoy();
 
+
 var intervalo;
+var intervaloF;
 var frames = 0; //cuantas veces se ejecuta
+var framesF = 0;
 
 //auxiliar functions
 function gameOver() {
@@ -96,13 +339,54 @@ function gameOver() {
 //el encargado de que todos se mueva es la funcion update alimentado por un intervalo
 function update() {
 	frames++;
-	//console.log(frames);
+	console.log("update solo");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	board.draw();
 	swimmingBoy.draw();
-	
 }
+
+function updateF() {
+	framesF++;
+	//console.log("Update F");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	boardF.draw();
+	swimmingBoyF.draw();
+	shark.draw();
+	crock.draw();
+	beachBall.draw();
+	rubberDock.draw();
+	bullets.forEach((bullet, indexB) => {
+    bullet.draw();
+    //console.log(planets);
+    planets.forEach((planet, indexP) => {
+      if(bullet.isTouching(planet)){
+        bullets.splice(indexB,1);
+        console.log("collision");
+        planets[indexP].num--;
+        if (planets[indexP].num<=0){
+          planets[indexP].redraw();
+          board.scorePlanets+=1;
+        }
+      }
+    });
+    bullet.move = true;
+  });
+}
+
+function startF() {
+	if(intervaloF > 0) return
+	if(intervalo > 0) return
+	//se pueden poner extras que se tengan que reiniciar al principio
+	intervalo = setInterval(function(){
+		updateF();
+	}, 1000/60);
+	swimmingBoyF.y = 120;
+	framesF = 0;
+	//board.music.play();
+}
+
 function start() {
+	if(intervaloF > 0) return
 	if(intervalo > 0) return
 	//se pueden poner extras que se tengan que reiniciar al principio
 	intervalo = setInterval(function(){
@@ -111,13 +395,13 @@ function start() {
 	swimmingBoy.y = 120;
 	frames = 0;
 	//board.music.play();
-	
-	
 }
 
 function stop() {
 	clearInterval(intervalo);
+	clearInterval(intervaloF);
 	intervalo = 0;
+	intervaloF = 0;
 	//board.music.pause();
 }
 
@@ -128,8 +412,17 @@ addEventListener("keydown", function(e) {
 	}
 	if(e.keyCode === 40) {
 		swimmingBoy.moveDown();
-	}	
-	if(e.keyCode === 82) {
+	}
+	if(e.keyCode === 32) {
+		swimmingBoyF.move();
+	}
+	if(e.keyCode === 82) { // presionas r
 		start();
 	}
+	if(e.keyCode === 79) {
+		startF();
+	}
+	if(e.keyCode === 13){
+    createShoots();
+   }
 });
